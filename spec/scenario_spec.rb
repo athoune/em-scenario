@@ -18,4 +18,20 @@ describe EventMachine::Scenario::Quorum do
         end
     end
 
+    it "act 3 times" do
+        EM.run do
+            a  = adlib(5) do
+                assert true
+                puts "Beuha"
+                EM.stop
+            end
+            a.each do |i|
+                puts i
+                EM.add_timer(Random.rand(0.1)) do
+                    a.next
+                end
+             end
+        end
+    end
+
 end
