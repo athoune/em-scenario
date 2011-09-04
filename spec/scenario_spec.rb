@@ -18,15 +18,16 @@ describe EventMachine::Scenario::Quorum do
         end
     end
 
-    it "act 3 times" do
+    it "act 5 times" do
         EM.run do
-            a  = adlib(5) do
+            stack = []
+            a  = adlib do
                 assert true
-                puts "Beuha"
+                assert [0,1,2,3,4] == stack
                 EM.stop
             end
-            a.each do |i|
-                puts i
+            a.repeat 5 do |i|
+                stack << i
                 EM.add_timer(Random.rand(0.1)) do
                     a.next
                 end

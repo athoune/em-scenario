@@ -6,6 +6,7 @@ module EventMachine
         class Sequence
         end
 
+        #Trigger when a quota of actions is done
         class Quorum
             include EM::Deferrable
             def initialize(times, &block)
@@ -19,15 +20,16 @@ module EventMachine
             end
         end
 
+        # Repeat sequentially an action
         class AdLib
             include EM::Deferrable
-            def initialize(times, &block)
-                @times = times
+            def initialize &block
                 @cpt = 0
                 self.callback(&block)
             end
 
-            def each &block
+            def repeat times, &block
+                @times = times
                 @loop = block
                 self._oneStep
             end
@@ -37,9 +39,9 @@ module EventMachine
                 @cpt += 1
             end
 
-            def next
+            def next *arg
                 if @cpt == @times
-                    self.succeed
+                    self.succeed *arg
                 else
                     self._oneStep
                 end
@@ -53,6 +55,6 @@ def quorum(size, &block)
     EventMachine::Scenario::Quorum.new size, &block
 end
 
-def adlib(size, &block)
-    EventMachine::Scenario::AdLib.new size, &block
+def adlib(&block)
+    EventMachine::Scenario::AdLib.new &block
 end
