@@ -35,4 +35,32 @@ describe EventMachine::Scenario::Quorum do
         end
     end
 
+    it "do something after other thing" do
+        EM.run do
+            txt = ""
+            sequence = abinitio do
+                assert "HELLO WORLD" == txt
+                EM.stop
+            end
+            sequence.then do
+                EM.add_timer(Random.rand(0.1)) do
+                    txt = "Hello "
+                    sequence.next
+                end
+            end
+            sequence.then do
+                EM.add_timer(Random.rand(0.1)) do
+                    txt += "World"
+                    sequence.next
+                end
+            end
+             sequence.then do
+                EM.add_timer(Random.rand(0.1)) do
+                    txt.upcase!
+                    sequence.next
+                end
+            end
+            sequence.invoke
+         end
+    end
 end

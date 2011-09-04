@@ -14,6 +14,10 @@ Tools
 
 Do something when n actions is done.
 
-### AdLib
+## AbInitio
 
 Act sequentialy.
+
+### AdLib
+
+Repeat an action, seqentillay.
