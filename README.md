@@ -10,11 +10,13 @@ Ruby 1.9.2 is used, it may work with ruby 1.8.x
 Tools
 -----
 
+The specs provide nice example of usage.
+
 ### Quorum
 
 Do something when n actions is done.
 
-## AbInitio
+### AbInitio
 
 Act sequentialy.
 
