@@ -6,14 +6,17 @@ require "scenario"
 describe EventMachine::Scenario::Quorum do
     it "wait for n actions to be finished" do
         EM.run do
-            q = quorum(5) do
+            q = quorum
+            5.times do |i|
+                q.add do |finished|
+                    EM.add_timer(Random.rand(0.1)) do
+                        finished.call
+                    end
+                end
+            end
+            q.when do
                 assert true
                 EM.stop
-            end
-            5.times do |i|
-                EM.add_timer(Random.rand(0.1)) do
-                    q.next
-                end
             end
         end
     end
@@ -21,7 +24,7 @@ describe EventMachine::Scenario::Quorum do
     it "act 5 times" do
         EM.run do
             stack = []
-            a  = adlib do
+            a = adlib do
                 assert true
                 assert [0,1,2,3,4] == stack
                 EM.stop
@@ -31,7 +34,7 @@ describe EventMachine::Scenario::Quorum do
                 EM.add_timer(Random.rand(0.1)) do
                     a.next
                 end
-             end
+            end
         end
     end
 
@@ -42,25 +45,25 @@ describe EventMachine::Scenario::Quorum do
                 assert "HELLO WORLD" == txt
                 EM.stop
             end
-            sequence.then do
+            sequence.then do |nextStep|
                 EM.add_timer(Random.rand(0.1)) do
                     txt = "Hello "
-                    sequence.next
+                    nextStep.call
                 end
             end
-            sequence.then do
+            sequence.then do |nextStep|
                 EM.add_timer(Random.rand(0.1)) do
                     txt += "World"
-                    sequence.next
+                    nextStep.call
                 end
             end
-             sequence.then do
+            sequence.then do |nextStep|
                 EM.add_timer(Random.rand(0.1)) do
                     txt.upcase!
-                    sequence.next
+                    nextStep.call
                 end
             end
             sequence.invoke
-         end
+        end
     end
 end

@@ -19,31 +19,43 @@ module EventMachine
                 @actions << d
             end
 
-            def next *arg
+            def nextStep
                 if @actions.length > 0
-                    @actions.pop.succeed(*arg)
+                  @actions.pop.succeed(Proc.new { nextStep })
                 else
-                    self.succeed *arg
+                    self.succeed
                 end
             end
 
-            def invoke *arg
+            def invoke
                 @actions.reverse!
-                self.next *arg
+                self.nextStep
             end
         end
 
         #Trigger when a quota of actions is done
         class Quorum
             include EM::Deferrable
-            def initialize(times, &block)
-                @times = times
-                self.callback(&block)
+            def initialize
+                @times = 0
+                @when = false
             end
 
-            def next(*arg)
-                @times -= 1
-                self.succeed(*arg) if @times == 0
+            def add
+              @times += 1;
+              yield Proc.new { finished }
+            end
+
+            def when(&block)
+              @when = true
+              self.callback(&block)
+              finished
+            end
+
+            protected
+            def finished
+              @times -= 1
+              self.succeed if @times == 0 && @when
             end
         end
 
@@ -78,8 +90,8 @@ module EventMachine
     end
 end
 
-def quorum(size, &block)
-    EventMachine::Scenario::Quorum.new size, &block
+def quorum
+    EventMachine::Scenario::Quorum.new
 end
 
 def adlib(&block)
