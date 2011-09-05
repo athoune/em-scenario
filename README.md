@@ -14,11 +14,11 @@ The specs provide nice example of usage.
 
 ### Quorum
 
-Do something when n actions is done.
+Do something when n actions are done.
 
 ### AbInitio
 
-Act sequentialy.
+Act sequentialy, from the start.
 
 ### AdLib
 
