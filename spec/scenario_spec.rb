@@ -41,29 +41,25 @@ describe EventMachine::Scenario::Quorum do
     it "do something after other thing" do
         EM.run do
             txt = ""
-            sequence = abinitio do
+            abinitio do
                 assert "HELLO WORLD" == txt
                 EM.stop
-            end
-            sequence.then do |nextStep|
+            end.then do |nextStep|
                 EM.add_timer(Random.rand(0.1)) do
                     txt = "Hello "
                     nextStep.call
                 end
-            end
-            sequence.then do |nextStep|
+            end.then do |nextStep|
                 EM.add_timer(Random.rand(0.1)) do
                     txt += "World"
                     nextStep.call
                 end
-            end
-            sequence.then do |nextStep|
+            end.then do |nextStep|
                 EM.add_timer(Random.rand(0.1)) do
                     txt.upcase!
                     nextStep.call
                 end
-            end
-            sequence.invoke
+            end.invoke
         end
     end
 end

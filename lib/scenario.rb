@@ -17,6 +17,7 @@ module EventMachine
                 d = EM::DefaultDeferrable.new
                 d.callback(&block)
                 @actions << d
+                self
             end
 
             def nextStep
