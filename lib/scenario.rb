@@ -9,9 +9,30 @@ module EventMachine
             include EM::Deferrable
 
             def initialize &block
-                @actions = []
-                block.call self
+                @actions = AbInitioActions.new
+                block.call @actions
                 self
+            end
+
+            def nextStep
+                if @actions.actions.length > 0
+                  @actions.actions.pop.succeed(Proc.new { nextStep })
+                else
+                    self.succeed
+                end
+            end
+
+            def finally &block
+                self.callback &block
+                @actions.actions.reverse!
+                self.nextStep
+            end
+        end
+
+        class AbInitioActions
+            attr_accessor :actions
+            def initialize
+                @actions = []
             end
 
             def then &block
@@ -21,20 +42,7 @@ module EventMachine
                 self
             end
 
-            def nextStep
-                if @actions.length > 0
-                  @actions.pop.succeed(Proc.new { nextStep })
-                else
-                    self.succeed
-                end
-            end
-
-            def finally &block
-                self.callback &block
-                @actions.reverse!
-                self.nextStep
-            end
-        end
+       end
 
         #Trigger when a quota of actions is done
         class Quorum
