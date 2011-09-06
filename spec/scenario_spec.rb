@@ -12,7 +12,7 @@ describe EventMachine::Scenario::Quorum do
                         nextStep.call
                     end
                 end
-            end.then do
+            end.finally do
                 assert true
                 EM.stop
             end
@@ -29,7 +29,7 @@ describe EventMachine::Scenario::Quorum do
                 end
             end.until do
                 cpt > 5
-            end.then do
+            end.finally do
                 assert true
                 EM.stop
             end

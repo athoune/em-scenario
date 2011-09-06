@@ -44,7 +44,7 @@ module EventMachine
                 self
             end
 
-            def then &block
+            def finally &block
                 self.callback(&block)
                 @loop.call( Proc.new {nextStep} )
             end
@@ -99,7 +99,7 @@ module EventMachine
                 self
             end
 
-            def then &block
+            def finally &block
                 self.callback &block
                 @loop.call( Proc.new { nextStep })
                 self
