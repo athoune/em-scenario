@@ -40,41 +40,43 @@ describe EventMachine::Scenario::Quorum do
     it "act 5 times" do
         EM.run do
             stack = []
-            adlib do
-                assert true
-                assert [0,1,2,3,4] == stack
-                EM.stop
-            end.repeat 5 do |nextStep, i|
+            adlib(5) do |nextStep, i|
                 stack << i
                 EM.add_timer(Random.rand(0.1)) do
                     nextStep.call
                 end
-            end
+           end.finally do
+                assert true
+                assert [0,1,2,3,4] == stack
+                EM.stop
+           end
         end
     end
 
     it "do something after other thing" do
         EM.run do
             txt = ""
-            abinitio do
+            abinitio do |sequence|
+                sequence.then do |nextStep|
+                    EM.add_timer(Random.rand(0.1)) do
+                        txt = "Hello "
+                        nextStep.call
+                    end
+                end.then do |nextStep|
+                    EM.add_timer(Random.rand(0.1)) do
+                        txt += "World"
+                        nextStep.call
+                    end
+                end.then do |nextStep|
+                    EM.add_timer(Random.rand(0.1)) do
+                        txt.upcase!
+                        nextStep.call
+                    end
+                end
+            end.finally do
                 assert "HELLO WORLD" == txt
                 EM.stop
-            end.then do |nextStep|
-                EM.add_timer(Random.rand(0.1)) do
-                    txt = "Hello "
-                    nextStep.call
-                end
-            end.then do |nextStep|
-                EM.add_timer(Random.rand(0.1)) do
-                    txt += "World"
-                    nextStep.call
-                end
-            end.then do |nextStep|
-                EM.add_timer(Random.rand(0.1)) do
-                    txt.upcase!
-                    nextStep.call
-                end
-            end.invoke
+            end
         end
     end
 end

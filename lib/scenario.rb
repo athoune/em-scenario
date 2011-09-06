@@ -10,7 +10,8 @@ module EventMachine
 
             def initialize &block
                 @actions = []
-                self.callback &block
+                block.call self
+                self
             end
 
             def then &block
@@ -28,7 +29,8 @@ module EventMachine
                 end
             end
 
-            def invoke
+            def finally &block
+                self.callback &block
                 @actions.reverse!
                 self.nextStep
             end
@@ -64,15 +66,15 @@ module EventMachine
         class AdLib
             include EM::Deferrable
 
-            def initialize &block
+            def initialize times, &block
                 @cpt = 0
-                self.callback(&block)
+                @times = times
+                @loop = block
                 self
             end
 
-            def repeat times, &block
-                @times = times
-                @loop = block
+            def finally &block
+                self.callback(&block)
                 self.nextStep
             end
 
@@ -120,8 +122,8 @@ def quorum(times, &block)
     EventMachine::Scenario::Quorum.new times, &block
 end
 
-def adlib(&block)
-    EventMachine::Scenario::AdLib.new &block
+def adlib(times, &block)
+    EventMachine::Scenario::AdLib.new times, &block
 end
 
 def abinitio(&block)
