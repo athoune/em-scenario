@@ -66,24 +66,21 @@ module EventMachine
             def initialize &block
                 @cpt = 0
                 self.callback(&block)
+                self
             end
 
             def repeat times, &block
                 @times = times
                 @loop = block
-                self._oneStep
+                self.nextStep
             end
 
-            def _oneStep
-                @loop.call @cpt
-                @cpt += 1
-            end
-
-            def next *arg
+            def nextStep
                 if @cpt == @times
-                    self.succeed *arg
+                    self.succeed
                 else
-                    self._oneStep
+                    @loop.call( Proc.new {nextStep}, @cpt)
+                    @cpt += 1
                 end
             end
 

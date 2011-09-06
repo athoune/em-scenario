@@ -24,15 +24,14 @@ describe EventMachine::Scenario::Quorum do
     it "act 5 times" do
         EM.run do
             stack = []
-            a = adlib do
+            adlib do
                 assert true
                 assert [0,1,2,3,4] == stack
                 EM.stop
-            end
-            a.repeat 5 do |i|
+            end.repeat 5 do |nextStep, i|
                 stack << i
                 EM.add_timer(Random.rand(0.1)) do
-                    a.next
+                    nextStep.call
                 end
             end
         end
