@@ -6,18 +6,34 @@ require "scenario"
 describe EventMachine::Scenario::Quorum do
     it "wait for n actions to be finished" do
         EM.run do
-            q = quorum
-            5.times do |i|
-                q.add do |finished|
+            quorum(5) do |nextStep|
+                5.times do |i|
                     EM.add_timer(Random.rand(0.1)) do
-                        finished.call
+                        nextStep.call
                     end
                 end
-            end
-            q.when do
+            end.then do
                 assert true
                 EM.stop
             end
+        end
+    end
+
+    it "try until success" do
+        EM.run do
+            cpt = 0
+            adnauseum do |nextStep|
+                EM.add_timer(Random.rand(0.1)) do
+                    cpt += 1
+                    nextStep.call
+                end
+            end.until do
+                cpt > 5
+            end.then do
+                assert true
+                EM.stop
+            end
+
         end
     end
 
