@@ -23,3 +23,8 @@ Act sequentialy, from the start.
 ### AdLib
 
 Repeat an action, seqentillay.
+
+Licence
+-------
+
+Released under the LGPL license.
