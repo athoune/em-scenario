@@ -35,7 +35,6 @@ describe EventMachine::Scenario::Quorum do
                 assert true
                 EM.stop
             end
-
         end
     end
 
@@ -81,4 +80,33 @@ describe EventMachine::Scenario::Quorum do
             end
         end
     end
+
+    it "chain different scenario" do
+        EM.run do
+            one = []
+            two = []
+            quorum(2) do |nextStep|
+                2.times do |i|
+                    one << i
+                    EM.add_timer(Random.rand(0.1)) do
+                        nextStep.call
+                    end
+                end
+            end.finally do
+                quorum(3) do |nextStep|
+                    3.times do |i|
+                        two << i
+                        EM.add_timer(Random.rand(0.1)) do
+                            nextStep.call
+                        end
+                    end
+                end.finally do
+                    assert [0,1,2] == two.sort
+                    assert [0,1] == one.sort
+                    EM.stop
+                end
+            end
+        end
+    end
+
 end

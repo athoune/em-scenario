@@ -4,6 +4,10 @@ module EventMachine
     # @see http://en.wikipedia.org/wiki/List_of_Latin_phrases
     module Scenario
 
+        class Scenario
+
+        end
+
         # from the start
         class AbInitio
             include EM::Deferrable
@@ -45,7 +49,7 @@ module EventMachine
        end
 
         #Trigger when a quota of actions is done
-        class Quorum
+        class Quorum < Scenario
             include EM::Deferrable
 
             def initialize times, &block
@@ -62,7 +66,7 @@ module EventMachine
             protected
             def nextStep
                 @times -= 1
-                self.succeed if @times == 0
+                self.succeed(self) if @times == 0
             end
         end
 
