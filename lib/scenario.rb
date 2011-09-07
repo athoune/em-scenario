@@ -61,12 +61,8 @@ module EventMachine
 
             protected
             def nextStep
-                if @times == 0
-                    self.succeed
-                else
-                    @times -= 1
-                    @loop.call( Proc.new {nextStep} )
-                end
+                @times -= 1
+                self.succeed if @times == 0
             end
         end
 
