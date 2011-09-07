@@ -52,6 +52,7 @@ end
 ### AbInitio
 
 Act sequentialy, from the start.
+
 ```ruby
 EM.run do
     txt = ""
@@ -82,6 +83,7 @@ end
 ### AdLib
 
 Repeat an action, seqentillay.
+
 ```ruby
 EM.run do
     stack = []
