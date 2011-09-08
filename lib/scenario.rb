@@ -96,6 +96,7 @@ module EventMachine
             end
         end
 
+        # Until sick. Act again and again, until criteria
         class AdNauseum
             include EM::Deferrable
 

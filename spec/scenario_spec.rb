@@ -47,7 +47,6 @@ describe EventMachine::Scenario::Quorum do
                     nextStep.call
                 end
            end.finally do
-                assert true
                 assert [0,1,2,3,4] == stack
                 EM.stop
            end
