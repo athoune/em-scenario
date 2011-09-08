@@ -70,6 +70,53 @@ module EventMachine
             end
         end
 
+        # As much as enough.
+        # You wont lots of parralel workers, but not too much.
+        class QuantumSatis
+            include EM::Deferrable
+
+            def initialize times, throttle=nil, &block
+                @opened = 0
+                @finished = 0
+                @worker = 0
+                @times = times
+                @throttle = throttle
+                @loop = block
+                @debug = false
+            end
+
+            def finally &block
+                self.callback &block
+                if @throttle
+                    @throttle.times{ call }
+                else
+                    @times.times{ call }
+                end
+            end
+
+            protected
+            def call
+                @worker += 1
+                @loop.call Proc.new{nextStep}, @opened, @worker
+                @opened += 1
+                if @debug
+                    puts "worker: #{@worker} opened: #{@opened} finished: #{@finished}"
+                end
+            end
+
+            def nextStep
+                puts "ending" if @debug
+                @finished += 1
+                @worker -= 1
+                if @finished == @times
+                    self.succeed
+                else
+                    call if @opened < @times
+                end
+           end
+
+        end
+
         # Repeat sequentially an action
         class AdLib
             include EM::Deferrable
@@ -141,4 +188,8 @@ end
 
 def adnauseum(&block)
     EventMachine::Scenario::AdNauseum.new &block
+end
+
+def quantumsatis(times, throttle=nil, &block)
+    EventMachine::Scenario::QuantumSatis.new times, throttle, &block
 end

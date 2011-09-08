@@ -100,6 +100,26 @@ EM.run do
 end
 ```
 
+### QuantumSatis
+
+Not so many parallel actions
+
+```ruby
+EM.run do
+    stack = []
+    quantumsatis(5, 2) do |nextStep, i, workers|
+        assert workers <= 2
+        EM.add_timer(Random.rand(0.1)) do
+            stack << i
+            nextStep.call
+        end
+    end.finally do
+        assert (0..4).to_a == stack.sort
+        EM.stop
+    end
+end
+```
+
 Todo
 ----
 

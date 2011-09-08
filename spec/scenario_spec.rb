@@ -53,6 +53,22 @@ describe EventMachine::Scenario::Quorum do
         end
     end
 
+    it "act not so fast" do
+        EM.run do
+            stack = []
+            quantumsatis(5, 2) do |nextStep, i, workers|
+                assert workers <= 2
+                EM.add_timer(Random.rand(0.1)) do
+                    stack << i
+                    nextStep.call
+                end
+            end.finally do
+                assert (0..4).to_a == stack.sort
+                EM.stop
+            end
+        end
+    end
+
     it "do something after other thing" do
         EM.run do
             txt = ""
