@@ -4,7 +4,7 @@ require "minitest/autorun"
 require "scenario"
 
 describe EventMachine::Scenario::Quorum do
-    it "wait for n actions to be finished" do
+    it "waits for n actions to be finished" do
         EM.run do
             stack = []
             quorum(5) do |nextStep|
@@ -19,6 +19,29 @@ describe EventMachine::Scenario::Quorum do
                 EM.stop
             end
         end
+    end
+
+    it "waits for actions and a time out" do
+        EM.run do
+            stack = []
+            q = quorum(20) do |nextStep|
+                20.times do |i|
+                    EM.add_timer(Random.rand(0.1)) do
+                        stack << i
+                        nextStep.call
+                    end
+                end
+            end
+            q.errback do |*args|
+                assert [:too_late] == args
+                assert stack.length < 20
+                EM.stop
+            end
+            q.timeout 0.1, :too_late
+            q.finally do
+                assert false, 'too late should happens'
+            end
+         end
     end
 
     it "try until success" do
