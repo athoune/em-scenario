@@ -7,6 +7,8 @@ Names use kitchen's latin, because it's more leet then japanese words.
 
 Ruby 1.9.2 is used, it may work with ruby 1.8.x
 
+Just like em-http-request, Scenario use the beta version of event machine, with few informations from Google, checkout the source and build the doc. Some of this patterns are now in Event Machine, with a verbose syntax and not chainable. I'll try to don't rebuild the wheel and use it.
+
 Tools
 -----
 
