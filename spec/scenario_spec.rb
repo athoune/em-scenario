@@ -21,6 +21,20 @@ describe EventMachine::Scenario::Quorum do
     end
   end
 
+  it "do the same thing with an iterator" do
+    EM.run do
+      EM::Iterator.new(0..4, 50).map(proc { |i, iter|
+        EM.add_timer(Random.rand(0.1)) do
+          iter.return i
+        end
+      }, proc{ |responses|
+        puts responses.inspect
+        assert [0, 1, 2, 3, 4] == responses.sort
+        EM.stop
+      })
+    end
+  end
+
   it "waits for actions and a time out" do
     EM.run do
       stack = []
