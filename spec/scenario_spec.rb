@@ -28,10 +28,22 @@ describe EventMachine::Scenario::Quorum do
           iter.return i
         end
       }, proc{ |responses|
-        puts responses.inspect
         assert [0, 1, 2, 3, 4] == responses.sort
         EM.stop
       })
+    end
+  end
+
+  it "iterate with scenario iterator" do
+    EM.run do
+      EM::Scenario::Iterator.new(0..4) do |i, iter|
+        EM.add_timer(Random.rand(0.1)) do
+          iter.return i
+        end
+      end.finally do |responses|
+        assert [0, 1, 2, 3, 4] == responses.sort
+        EM.stop
+      end
     end
   end
 
@@ -157,6 +169,26 @@ describe EventMachine::Scenario::Quorum do
           assert [0,1] == one.sort
           EM.stop
         end
+      end
+    end
+  end
+
+  it "uses the multi" do
+    EM.run do
+      m = EM::Scenario::Multi.new
+      stack = []
+      m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+        stack << 1
+      end)
+      m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+        stack << 2
+      end)
+      m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+        stack << 3
+      end)
+      m.callback do
+        assert [1,2,3] == stack.sort
+        EM.stop
       end
     end
   end

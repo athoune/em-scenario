@@ -24,6 +24,40 @@ module EventMachine
       end
     end
 
+    class Timer
+      include EM::Deferrable
+
+      def initialize timer, &block
+        self.callback &block
+        @id = EM.add_timer(timer) do
+            self.succeed
+        end
+      end
+
+      def cancel
+        EM.cancel_timer @id
+      end
+
+    end
+
+    # Just like with em-http-request
+    class Multi
+      include EM::Deferrable
+
+      def initialize
+        @actions = 0
+      end
+
+      def add deferable
+        @actions += 1
+        deferable.callback do
+          @actions -= 1
+          self.succeed if @actions == 0
+        end
+      end
+
+    end
+
     # from the start
     # Sequences of actions.
     class AbInitio
