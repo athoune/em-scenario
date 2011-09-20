@@ -5,10 +5,27 @@ module EventMachine
   module Scenario
 
     class Scenario
+      include EM::Deferrable
 
     end
 
+    class Iterator < Scenario
+
+      def initialize array, workers=10, &block
+        @datas = array
+        @action = block
+        @workers = workers
+      end
+
+      def finally &block
+        EM::Iterator.new(@datas, @workers).map(
+            @action, block
+        )
+      end
+    end
+
     # from the start
+    # Sequences of actions.
     class AbInitio
       include EM::Deferrable
 
@@ -185,6 +202,8 @@ end
 def abinitio(&block)
   EventMachine::Scenario::AbInitio.new &block
 end
+
+alias sequence abinitio
 
 def adnauseum(&block)
   EventMachine::Scenario::AdNauseum.new &block
