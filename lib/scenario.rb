@@ -1,60 +1,15 @@
 require "eventmachine"
 
+require "scenario/iterator"
+require "scenario/multi"
+require "scenario/timer"
+
 module EventMachine
   # @see http://en.wikipedia.org/wiki/List_of_Latin_phrases
   module Scenario
 
     class Scenario
       include EM::Deferrable
-
-    end
-
-    class Iterator < Scenario
-
-      def initialize array, workers=10, &block
-        @datas = array
-        @action = block
-        @workers = workers
-      end
-
-      def finally &block
-        EM::Iterator.new(@datas, @workers).map(
-            @action, block
-        )
-      end
-    end
-
-    class Timer
-      include EM::Deferrable
-
-      def initialize timer, &block
-        self.callback &block
-        @id = EM.add_timer(timer) do
-            self.succeed
-        end
-      end
-
-      def cancel
-        EM.cancel_timer @id
-      end
-
-    end
-
-    # Just like with em-http-request
-    class Multi
-      include EM::Deferrable
-
-      def initialize
-        @actions = 0
-      end
-
-      def add deferable
-        @actions += 1
-        deferable.callback do
-          @actions -= 1
-          self.succeed if @actions == 0
-        end
-      end
 
     end
 
