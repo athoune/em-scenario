@@ -3,6 +3,7 @@ require "eventmachine"
 require "scenario/iterator"
 require "scenario/multi"
 require "scenario/timer"
+require "scenario/sequence"
 
 module EventMachine
   # @see http://en.wikipedia.org/wiki/List_of_Latin_phrases

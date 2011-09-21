@@ -173,6 +173,34 @@ describe EventMachine::Scenario::Quorum do
     end
   end
 
+  it "chain with sequence" do
+    EM.run do
+      stack = []
+      EM::Scenario::Sequence.new do
+        EM::Scenario::Timer.new(0.4) do
+          stack << 1
+        end
+      end.then do
+        EM::Scenario::Timer.new(0.3) do
+          stack << 2
+        end
+      end.then do |iter|
+        EM::Scenario::Timer.new(0.2) do
+          stack << 3
+          iter.return 42 #you can return values for the next step
+        end
+      end.then do |iter, n|
+        assert n == 42 # and retrieve it
+        EM::Scenario::Timer.new(0.1) do
+          stack << 4
+        end
+      end.then do
+        assert (1..4).to_a == stack
+        EM.stop
+      end
+    end
+  end
+
   it "uses the multi" do
     EM.run do
       m = EM::Scenario::Multi.new
