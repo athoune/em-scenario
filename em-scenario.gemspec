@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name             = "em-scenario"
-  s.version          = "0.0.3"
+  s.version          = "0.0.4"
   s.date             = Time.now.utc.strftime("%Y-%m-%d")
   s.homepage         = "http://github.com/athoune/em-scenario"
   s.authors          = "Mathieu Lecarme"
