@@ -13,6 +13,68 @@ Some of this patterns are now in Event Machine, with a verbose syntax and withou
 Tools
 -----
 
+### Multi
+
+Just like the Multi tool in _em-http-request_ and _em-synchrony_.
+You can launch any deferrable.
+
+```ruby
+EM.run do
+  m = EM::Scenario::Multi.new
+  stack = []
+  m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+    stack << 1
+  end)
+  m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+    stack << 2
+  end)
+  m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+    stack << 3
+  end)
+  m.callback do
+    assert [1,2,3] == stack.sort
+    EM.stop
+  end
+end
+```
+
+### Sequence
+
+No stairs, just a sequence of deferrables.
+
+```ruby
+EM.run do
+  stack = []
+  EM::Scenario::Sequence.new do
+    EM::Scenario::Timer.new(0.4) do
+      stack << 1
+    end
+  end.then do
+    EM::Scenario::Timer.new(0.3) do
+      stack << 2
+    end
+  end.then do |iter|
+    EM::Scenario::Timer.new(0.2) do
+      stack << 3
+      iter.return 42 #you can return values for the next step
+    end
+  end.then do |iter, n|
+    assert n == 42 # and retrieve it
+    EM::Scenario::Timer.new(0.1) do
+      stack << 4
+    end
+  end.then do
+    assert (1..4).to_a == stack
+    EM.stop
+  end
+end
+```
+
+Experimentations
+----------------
+
+Strange and experimental tools with strange names. Most are specific and redundant iterator. Some guinea pigs could die soon.
+
 ### Quorum
 
 Do something when n actions are done.
