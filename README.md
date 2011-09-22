@@ -70,6 +70,41 @@ EM.run do
 end
 ```
 
+### Mixing multis and sequences
+
+`Multi` and `Sequence` handle any deferrable objects and are deferrable too. You can compound story :
+
+```
+    /-#-\   /-#-#--\
+ -#---#---#----#-----#-
+    \-#-/   \----#-/
+
+```
+
+```ruby
+EM.run do
+  stack = []
+  EM::Scenario::Sequence.new do
+    m = EM::Scenario::Multi.new
+    10.times do
+      m.add(rand_timer(0.5) { stack << 0 })
+    end
+    m
+  end.then do
+    m = EM::Scenario::Multi.new
+    10.times do
+      m.add(rand_timer(0.5) { stack << 1 })
+    end
+    m
+  end.then do
+    rand_timer(0.5) do
+      assert [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] == stack
+      EM.stop
+    end
+  end
+end
+```
+
 Experimentations
 ----------------
 
