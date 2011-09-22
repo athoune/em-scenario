@@ -22,9 +22,9 @@ module EventMachine
         @action << proc {
           defer = block.call(@bag, *@bag[size+1])
           if size < @action.length
-            defer.callback do
-              @action[size].call
-            end
+            defer.callback { @action[size].call }
+          else
+            self.succeed
           end
         }
        self

@@ -3,7 +3,7 @@
 require "minitest/autorun"
 require "scenario"
 
-describe EventMachine::Scenario::Quorum do
+describe EventMachine::Scenario do
   it "waits for n actions to be finished" do
     EM.run do
       stack = []
@@ -173,25 +173,29 @@ describe EventMachine::Scenario::Quorum do
     end
   end
 
+  def rand_timer(max, &block)
+    EM::Scenario::Timer.new(Random.rand(max)) { block.call }
+  end
+
   it "chain with sequence" do
     EM.run do
       stack = []
       EM::Scenario::Sequence.new do
-        EM::Scenario::Timer.new(0.4) do
+        rand_timer(0.4) do
           stack << 1
         end
       end.then do
-        EM::Scenario::Timer.new(0.3) do
+        rand_timer(0.3) do
           stack << 2
         end
       end.then do |iter|
-        EM::Scenario::Timer.new(0.2) do
+        rand_timer(0.2) do
           stack << 3
           iter.return 42 #you can return values for the next step
         end
       end.then do |iter, n|
         assert n == 42 # and retrieve it
-        EM::Scenario::Timer.new(0.1) do
+        rand_timer(0.1) do
           stack << 4
         end
       end.then do
@@ -217,6 +221,30 @@ describe EventMachine::Scenario::Quorum do
       m.callback do
         assert [1,2,3] == stack.sort
         EM.stop
+      end
+    end
+  end
+
+  it "mix multi and sequence" do
+    EM.run do
+      stack = []
+      EM::Scenario::Sequence.new do
+        m = EM::Scenario::Multi.new
+        10.times do
+          m.add(rand_timer(0.5) { stack << 0 })
+        end
+        m
+      end.then do
+        m = EM::Scenario::Multi.new
+        10.times do
+          m.add(rand_timer(0.5) { stack << 1 })
+        end
+        m
+      end.then do
+        rand_timer(0.5) do
+          p stack
+          EM.stop
+        end
       end
     end
   end
