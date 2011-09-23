@@ -95,17 +95,31 @@ describe EventMachine::Scenario do
     EM.run do
       m = EM::Scenario::Multi.new
       stack = []
-      m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+      m.add(rand_timer(0.1) do
         stack << 1
       end)
-      m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+      m.add(rand_timer(0.1) do
         stack << 2
       end)
-      m.add(EM::Scenario::Timer.new(Random.rand(0.1)) do
+      m.add(rand_timer(0.1) do
         stack << 3
       end)
       m.callback do
         assert [1,2,3] == stack.sort
+        EM.stop
+      end
+    end
+  end
+
+  it "use the join sugar" do
+    EM.run do
+      stack = []
+      a = rand_timer(0.1){ stack << 1}
+      b = rand_timer(0.1){ stack << 2}
+      c = rand_timer(0.1){ stack << 3}
+      d = rand_timer(0.1){ stack << 4}
+      EM::Scenario.join(a, b, c, d) do
+        assert (1..4).to_a == stack.sort
         EM.stop
       end
     end

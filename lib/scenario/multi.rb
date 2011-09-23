@@ -22,5 +22,17 @@ module EventMachine
 
     end
 
+    #
+    # Syntax sugar for creating a Multi
+    #
+    def Scenario.join(*deferrables, &block)
+      m = Multi.new
+      deferrables.each do |deferrable|
+        m.add deferrable
+      end
+      m.callback &block
+      m
+    end
+
   end
 end

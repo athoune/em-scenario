@@ -38,6 +38,24 @@ EM.run do
 end
 ```
 
+Syntax sugar can hide the boiler plate
+
+```ruby
+EM.run do
+  stack = []
+  # Throw some Deferrables
+  a = EM::Scenario::Timer.new(Random.rand(0.1)){ stack << 1}
+  b = EM::Scenario::Timer.new(Random.rand(0.1)){ stack << 2}
+  c = EM::Scenario::Timer.new(Random.rand(0.1)){ stack << 3}
+  d = EM::Scenario::Timer.new(Random.rand(0.1)){ stack << 4}
+  # and join them
+  EM::Scenario.join(a, b, c, d) do
+    assert (1..4).to_a == stack.sort
+    EM.stop
+  end
+end
+```
+
 ### Sequence
 
 No stairs, just a sequence of deferrables.
