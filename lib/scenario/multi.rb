@@ -17,6 +17,7 @@ module EventMachine
           @actions -= 1
           self.succeed if @actions == 0
         end
+        self
       end
 
     end
